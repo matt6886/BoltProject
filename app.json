@@ -12,7 +12,11 @@
       "backgroundColor": "#ffffff"
     },
     "newArchEnabled": false,
-    "platforms": ["ios", "android", "web"],
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.washp.app",
@@ -32,13 +36,18 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.washp.app",
-      "permissions": ["CAMERA"],
+      "permissions": [
+        "CAMERA"
+      ],
       "versionCode": 1
     },
     "web": {
       "bundler": "metro",
       "output": "single",
       "favicon": "./assets/images/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-router"
+    ]
   }
 }
