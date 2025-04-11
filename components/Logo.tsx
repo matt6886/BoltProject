@@ -2,6 +2,31 @@ import React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import { useFonts, Inter_600SemiBold } from '@expo-google-fonts/inter';
 import { LinearGradient } from 'expo-linear-gradient';
+import { LinearTextGradient } from 'react-native-text-gradient';
+import MaskedView from '@react-native-masked-view/masked-view';
+
+const GradientText = ({ children, style, ...rest }) => {
+  const gradientColors = ['red', 'green', 'blue'];
+  return (
+    <MaskedView
+      maskElement={
+        <Text style={style} {...rest}>
+          {children}
+        </Text>
+      }
+    >
+      <LinearGradient
+        colors={['#3D5AFE', '#40B3FF']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+      >
+        <Text style={[style, { opacity: 0 }]} {...rest}>
+          {children}
+        </Text>
+      </LinearGradient>
+    </MaskedView>
+  );
+};
 
 export function Logo() {
   const [fontsLoaded] = useFonts({
@@ -35,16 +60,9 @@ export function Logo() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#3D5AFE', '#40B3FF']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={styles.gradientContainer}
-      >
-        <Text style={[styles.logo, styles.gradientText]}>
-          WashP
-        </Text>
-      </LinearGradient>
+      <GradientText style={[styles.logo, styles.gradientText]}>
+        WashP
+      </GradientText>
     </View>
   );
 }

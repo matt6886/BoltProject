@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, Pressable, Dimensions, Platform, ActivityIndicator, Image } from 'react-native';
-import { Camera, CameraType } from 'expo-camera';
+import { Camera, CameraType, CameraView, useCameraPermissions } from 'expo-camera';
 import { Link, useRouter } from 'expo-router';
 import { useFonts, Inter_400Regular, Inter_600SemiBold } from '@expo-google-fonts/inter';
 import { Camera as LucideCamera, Tag, Image as ImageIcon, ChevronLeft, Plus, X, Check } from 'lucide-react-native';
@@ -54,7 +54,7 @@ export default function AnalyzeScreen() {
   const [lastCapturedImage, setLastCapturedImage] = useState<string | null>(null);
   const [capturedImages, setCapturedImages] = useState<CapturedImage[]>([]);
   const [showCaptureOptions, setShowCaptureOptions] = useState(false);
-  const cameraRef = useRef<Camera | null>(null);
+  const cameraRef = useRef<CameraView | null>(null);
   const cornerScale = useSharedValue(LABEL_SCALE);
   const thumbnailScale = useSharedValue(1);
   const previousMode = useRef<ScanMode>('label');
@@ -65,6 +65,14 @@ export default function AnalyzeScreen() {
     'Inter-Regular': Inter_400Regular,
     'Inter-SemiBold': Inter_600SemiBold,
   });
+
+const [permission, requestPermission] = useCameraPermissions();
+
+  useEffect(() => {
+    if (permission && !permission.granted) {
+      requestPermission()
+    }
+  }, [permission])
 
   useEffect(() => {
     (async () => {
@@ -93,14 +101,18 @@ export default function AnalyzeScreen() {
         } else {
           // For non-web platforms, use Expo Camera
           const { status } = await Camera.requestCameraPermissionsAsync();
-          const isAvailable = await Camera.isAvailableAsync();
-          setIsCameraAvailable(isAvailable);
+          if (status === 'granted') {
+            setIsCameraAvailable(true);
+          } else {
+            setIsCameraAvailable(false);
+          }
+          
           setHasPermission(status === 'granted');
           
-          if (!isAvailable) {
+          if (status !== 'granted') {
             setError('Caméra non disponible sur cet appareil');
           } else if (status !== 'granted') {
-            setError('Permission d\'accès à la caméra refusée');
+            setError("Permission d'accès à la caméra refusée");
           }
         }
       } catch (err) {
@@ -425,10 +437,10 @@ export default function AnalyzeScreen() {
       )}
 
       {isCameraAvailable && hasPermission ? (
-        <Camera
+        <CameraView
           ref={cameraRef}
           style={styles.camera}
-          type={CameraType.back}
+          facing={'front'}
         />
       ) : (
         <View style={styles.messageContainer}>
@@ -437,7 +449,8 @@ export default function AnalyzeScreen() {
           </Text>
           <Pressable
             style={styles.galleryButton}
-            onPress={() => handleModeChange('gallery')}>
+            onPress={() => handleModeChange('gallery')}
+          >
             <Text style={styles.galleryButtonText}>
               {t('analyze.useGallery')}
             </Text>
@@ -450,35 +463,38 @@ export default function AnalyzeScreen() {
           {renderCorners()}
           {renderModeButtons()}
           {renderThumbnails()}
-          
+
           {/* Bouton pour supprimer la dernière photo */}
           {capturedImages.length > 0 && (
-            <Pressable 
+            <Pressable
               style={styles.removeButton}
-              onPress={handleRemoveLastImage}>
+              onPress={handleRemoveLastImage}
+            >
               <X size={22} color="#FF3B30" />
             </Pressable>
           )}
-          
+
           {/* Bouton d'analyse en haut à droite */}
           {capturedImages.length > 0 && (
-            <Pressable 
+            <Pressable
               style={styles.analyzeButton}
-              onPress={handleAnalyzeImages}>
+              onPress={handleAnalyzeImages}
+            >
               <LinearGradient
                 colors={['#3D5AFE', '#40B3FF']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                style={styles.analyzeButtonGradient}>
+                style={styles.analyzeButtonGradient}
+              >
                 <Check size={18} color="#FFFFFF" />
-                <Text style={styles.analyzeButtonText}>{t('analyze.analyzeButton')}</Text>
+                <Text style={styles.analyzeButtonText}>
+                  {t('analyze.analyzeButton')}
+                </Text>
               </LinearGradient>
             </Pressable>
           )}
-          
-          <Pressable 
-            style={styles.captureButton}
-            onPress={handleCapture}>
+
+          <Pressable style={styles.captureButton} onPress={handleCapture}>
             <View style={styles.captureButtonInner} />
           </Pressable>
         </>

@@ -20,8 +20,8 @@ import { ThemeContext } from '../../components/ThemeProvider';
 import { t } from '../../utils/i18n';
 
 export default function SignInScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('jeanvalere4b@gmail.com');
+  const [password, setPassword] = useState('JeanValere06');
   const router = useRouter();
   
   const { signIn, loading, error } = useAuthStore();
