@@ -440,7 +440,7 @@ const [permission, requestPermission] = useCameraPermissions();
         <CameraView
           ref={cameraRef}
           style={styles.camera}
-          facing={'front'}
+          facing={'back'}
         />
       ) : (
         <View style={styles.messageContainer}>
@@ -742,6 +742,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 999
   },
   analyzeButton: {
     position: 'absolute',
